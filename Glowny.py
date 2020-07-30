@@ -13,6 +13,46 @@ from matplotlib import style
 
 #import Tkinter as tk     # python 2
 #import tkFont as tkfont  # python 2
+from datetime import datetime
+from matplotlib import style
+import matplotlib
+from matplotlib.figure import Figure
+matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+
+LARGE_FONT= ("Verdana", 10)
+style.use("dark_background")
+
+f = Figure(figsize = (2, 5), dpi = 75)
+ax1 = f.add_subplot(111)
+#ax2 = f1.add_subplot(212)
+def Graph(i):
+
+        """DinamiPlot"""
+        graph_data = open('Zeszyt1.csv','r').read()
+        lines = graph_data.split('\n')
+        #xs = []
+        ys = []
+        y1 = []
+        y2 = []
+        for line in lines:
+            if len(line) > 1:
+                #x, y = line.split(',')
+                y = line
+                #xs.append(float(x))
+                ys.append(float(y))
+                y1.append(46)
+                y2.append(51)
+        ax1.clear()
+        ax1.plot(ys,linewidth=3)
+        ax1.plot(y1,'lime', linestyle='dotted', linewidth=2)
+        ax1.plot(y2, 'lime', linestyle='dotted', linewidth=2)
+        ax1.set_ylabel('Wyniki Pomiarów')
+        ax1.set_xlabel('Unit[]')
+        ax1.set_title('Wykres pomiarów')
+        #ani = animation.FuncAnimation(fig, Graph, interval=1000)
+        #plt.show(ani)
+        """DinamiPlot"""
 
 class SampleApp(tk.Tk):
 
@@ -48,7 +88,7 @@ class SampleApp(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (StartPage, PageOne, PageTwo):
+        for F in (StartPage, PageOne, PageTwo, PageThree):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -148,11 +188,14 @@ class SampleApp(tk.Tk):
                         self.rc = self.conn.recv(1024).decode()
                         self.data = str(self.rc)
                         #self.data = (self.clientsocket.recv(1024).decode())
+                        self.data_1 = float(self.data)
+
                     except (Exception):#, e):
                         # we can wait on the line if desired
                         print ("socket error: ")#+repr(e))
                     if len(self.rc):
                         print("got data", self.rc)
+                        print("A float to: ", self.data_1 + 1.0) #Moja modyfikacja
                         #self.conn.send("got data.\n")
                         self.t.insert('end', str(self.rc))
                         connect_start=time()  # reset timeout time
@@ -194,9 +237,10 @@ class SampleApp(tk.Tk):
 
 
     def inserttotable(self):
-        self.cursor.execute('SELECT * FROM [Test].[dbo].[Dane_z_aplikacji]')
-        self.cursor.execute("INSERT INTO [Test].[dbo].[Dane_z_aplikacji] (Dane_z_portu) VALUES (?)", self.data)   #'SELECT * FROM db_name.Table')
+        self.cursor.execute('SELECT * FROM [Test_1].[dbo].[Dane_z_aplikacji]')
+        #self.cursor.execute("INSERT INTO [Test].[dbo].[Dane_z_aplikacji] (Dane_z_portu) VALUES (?)", self.data)   #'SELECT * FROM db_name.Table')
         #cursor.execute("insert into products(id, name) values ('pyodbc', 'awesome library')")
+        self.cursor.execute("INSERT INTO [Test_1].[dbo].[Dane_z_aplikacji] (ID_Referencji, ID_Stacji, Pomiar, DATA, Status) VALUES (?,?,?,?,?)",(2, 1, self.data_1, datetime.now(), 'OK'))
         self.cursor.commit()
         #'INSERT INTO [dbo].[Dane z aplikacji] VALUES (self.rc)'
 
@@ -332,10 +376,13 @@ class PageOne(tk.Frame):
 
 
         b3 = tk.Button(lF_4, text="Stop Listening", width=20,borderwidth=3,fg="orange4",bg="gray10", command=controller.stopc)
-        b3.place(x=3, y=80)
+        b3.place(x=3, y=60)
 
         b3 = tk.Button(lF_4, text="Insert Data to DB", width=20,borderwidth=3,fg="orange4",bg="gray10", command=controller.inserttotable)
-        b3.place(x=3, y=110)
+        b3.place(x=3, y=120)
+
+        b10 = tk.Button(lF_4, text="Download From DB", width=20,borderwidth=3,fg="orange4",bg="gray10", command=controller.stopc)
+        b10.place(x=3, y=155)
 
         ###TEKST
         controller.t = tk.Text(lF_3, height=9, width=40,bd=3,bg="gray50",fg="red")#, pady=5)
@@ -389,6 +436,8 @@ class PageTwo(tk.Frame):
         Frame_2_3 = tk.LabelFrame(lF_31, bg="grey60",text="Option")
         Frame_2_3.pack(fill="both", expand=True, pady=(90, 150), padx=(2, 2))
 
+        IF_32 = tk.LabelFrame(lF_31, bg="grey60",borderwidth=5, relief="raised")
+        IF_32.place(relx=5, rely=5)
 
 
         # lF_6 = tk.LabelFrame(lF_3, text="Ramka obok", bg="green")
@@ -407,8 +456,21 @@ class PageTwo(tk.Frame):
                          bg="dark slate gray", width="10", height="1", highlightthickness=2)
         b_42.place(x=10, y=0)
 
-        label = tk.Label(lF_31, text="Rysuj Grapf", font=controller.title_font,bg="grey30")
-        label.place(relx=0.5,rely=0.1, anchor="center")
+        #PAge Threee
+        b_43 = tk.Button(lF_23, text="Next", command=lambda: controller.show_frame("PageThree"),
+                             fg="red4", bg="dark slate gray", width="10", height="1", highlightthickness=2)
+        b_43.place(x=176, y=0)
+
+
+
+
+        label = tk.Label(lF_31, text="Bez wypadku:\n 10 dni!", font=controller.title_font,bg="grey30",fg="white")
+        label.place(relx=0.35,rely=0.1, anchor="center")
+        img = Image.open('face3.png')
+        print(img.size)
+        self.tkimage = ImageTk.PhotoImage(img)
+        label1 = tk.Label(self, image=self.tkimage, bg="grey30")
+        label1.place(relx=0.01, rely=0.09)
         #button = tk.Button(self, text="Go to the start page",command=lambda: controller.show_frame("StartPage"))
         #button.pack()
 
@@ -424,7 +486,7 @@ class PageTwo(tk.Frame):
         my_button.place(relx=0.5, rely=0, anchor='n')
         plt.style.use('fivethirtyeight')
 
-        def graph():
+        '''def graph():
             #plt.style.use('ggplot')
 
             """Cyberpunk GRAPH"""
@@ -452,34 +514,45 @@ class PageTwo(tk.Frame):
             plt.title('EpicGame')
             plt.ylabel('Y axis')
             plt.xlabel('X label')
-            plt.show()
+            plt.show()'''
 
         fig = plt.figure()
-        ax1 = fig.add_subplot(1, 1, 1)
-        def Graph():
 
-            """DinamiPlot"""
-            graph_data = open('Zeszyt1.csv','r').read()
-            lines = graph_data.split('\n')
-            xs = []
-            ys = []
-            for line in lines:
-                if len(line) > 1:
-                    x, y = line.split(',')
-                    xs.append(x)
-                    ys.append(y)
-            ax1.clear()
-            ax1.plot(xs, ys)
-            self.ani = animation.FuncAnimation(fig, Graph, interval=1000)
-            plt.show()
-            """DinamiPlot"""
-
-
-
-        my_button1 = tk.Button(Frame_2_3,text="GRAPH1", command=Graph, width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
+        my_button1 = tk.Button(Frame_2_3,text="GRAPH1", command=lambda: controller.show_frame("PageThree"), width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
         my_button1.place(relx=0.5, rely=0.5, anchor='center')
 
+class PageThree(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+
+        lF_33 = tk.LabelFrame(self, bg="gray94")
+        lF_33.pack(fill="both", expand=True, pady=(0, 0))
+
+        lF_41 = tk.LabelFrame(lF_33, bg="gray30", borderwidth=5, relief="raised")  # , height=100)
+        lF_41.pack(fill="both", expand=True, pady=(30, 0))
+
+        #Button
+        b_51 = tk.Button(lF_33, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="red4",
+                         bg="dark slate gray", width="10", height="1", highlightthickness=2)
+        b_51.place(x=93, y=0)
+        b_52 = tk.Button(lF_33, text='Prev ', command=lambda: controller.show_frame("PageTwo"), fg="red4",
+                         bg="dark slate gray", width="10", height="1", highlightthickness=2)
+        b_52.place(x=10, y=0)
+        b_51 = tk.Button(lF_33, text='Next ', command=lambda: controller.show_frame("StartPage"), fg="red4",
+                         bg="dark slate gray", width="10", height="1", highlightthickness=2)
+        b_51.place(x=176, y=0)
+
+        canvas = FigureCanvasTkAgg(f, self)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
+        toolbar = NavigationToolbar2Tk(canvas, self)
+        toolbar.update()
+        canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 if __name__ == "__main__":
     app = SampleApp()
+    ani = animation.FuncAnimation(f, Graph, interval=1000)
     app.mainloop()
