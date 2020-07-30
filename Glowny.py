@@ -323,7 +323,6 @@ class PageOne(tk.Frame):
         self.controller = controller
         #controller.geometry("510x400")
 
-
         ##POLOZENIE ELEMENTOW W APLIKACJI
 
         ##LABEL
