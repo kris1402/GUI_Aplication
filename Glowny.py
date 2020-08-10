@@ -598,7 +598,7 @@ class PageTwo(tk.Frame):
 
             """fig, ax = plt.subplots()
             colors = [
-                '#08F7FE',  # teal/cyan
+                '#08F7FE',  # teal/cyanxx
                 '#FE53BB',  # pink
                 '#F5D300',  # yellow
                 '#00ff41',  # matrix green#
