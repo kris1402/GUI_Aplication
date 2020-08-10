@@ -9,8 +9,13 @@ from PIL import ImageTk, Image
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import time
+############
+import requests
+from PIL import Image, ImageTk
+#############
 from matplotlib import style
-
+from tkinter import font
 #import Tkinter as tk     # python 2
 #import tkFont as tkfont  # python 2
 from datetime import datetime
@@ -19,6 +24,37 @@ import matplotlib
 from matplotlib.figure import Figure
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+
+
+import snap7.client as c
+from snap7.util import *
+from snap7.snap7types import *
+
+def ReadMemory(plc,byte,bit,datatype):
+    result = plc.read_area(areas['MK'],0,byte,datatype)
+    if datatype==S7WLBit:
+        return get_bool(result,0,bit)
+    elif datatype==S7WLByte or datatype==S7WLWord:
+        return get_int(result,0)
+    elif datatype==S7WLReal:
+        return get_real(result,0)
+    elif datatype==S7WLDWord:
+        return get_dword(result,0)
+    else:
+        return None
+
+def WriteMemory(plc,byte,bit,datatype,value):
+    result = plc.read_area(areas['MK'],0,byte,datatype)
+    if datatype==S7WLBit:
+        set_bool(result,0,bit,value)
+    elif datatype==S7WLByte or datatype==S7WLWord:
+        set_int(result,0,value)
+    elif datatype==S7WLReal:
+        set_real(result,0,value)
+    elif datatype==S7WLDWord:
+        set_dword(result,0,value)
+    plc.write_area(areas["MK"],0,byte,result)
+
 
 LARGE_FONT= ("Verdana", 10)
 style.use("dark_background")
@@ -431,13 +467,22 @@ class PageTwo(tk.Frame):
 
         lF_31 = tk.LabelFrame(lF_23, bg="gray30", borderwidth=5, relief="raised")  # , height=100)
         lF_31.pack(fill="both", expand=True, pady=(30, 0))
+        #center gry
+        Frame_2_3 = tk.LabelFrame(lF_31, bg="grey60",text="Control")
+        Frame_2_3.pack(fill="both", expand=True, pady=(80, 0), padx=(2, 2))
+        #center row1
+        Frame_2_5 = tk.LabelFrame(Frame_2_3, bg="grey50")
+        Frame_2_5.pack(fill="both", expand=True, pady=2, padx=2)
+        Frame_2_6 = tk.LabelFrame(Frame_2_3, bg="grey50")
+        Frame_2_6.pack(fill="both", expand=True, pady=2, padx=2)
+        Frame_2_7 = tk.LabelFrame(Frame_2_3, bg="grey50")
+        Frame_2_7.pack(fill="both", expand=True, pady=2, padx=2)
 
-        Frame_2_3 = tk.LabelFrame(lF_31, bg="grey60",text="Option")
-        Frame_2_3.pack(fill="both", expand=True, pady=(90, 150), padx=(2, 2))
-
-        IF_32 = tk.LabelFrame(lF_31, bg="grey60",borderwidth=5, relief="raised")
+        IF_32 = tk.LabelFrame(lF_31, bg="red",borderwidth=5, relief="raised")
         IF_32.place(relx=5, rely=5)
 
+        Frame_2_4 = tk.LabelFrame(lF_31, bg="grey60", text="Option")
+        Frame_2_4.pack(fill="both", expand=True, pady=(10, 10), padx=(2, 2))
 
         # lF_6 = tk.LabelFrame(lF_3, text="Ramka obok", bg="green")
         # lF_6.pack(fill="both", expand=True, pady=(0, 0), padx=(0, 180))
@@ -463,13 +508,70 @@ class PageTwo(tk.Frame):
 
 
 
-        label = tk.Label(lF_31, text="Bez wypadku:\n 10 dni!", font=controller.title_font,bg="grey30",fg="white")
-        label.place(relx=0.35,rely=0.1, anchor="center")
-        img = Image.open('face3.png')
+        #label = tk.Label(lF_31, text="Panel\n Operatorski", font=('Courier',22),bg="grey30",fg="black")
+        #label.place(relx=0.5,rely=0.1, anchor="center")
+        img = Image.open('hmi.png')
         print(img.size)
         self.tkimage = ImageTk.PhotoImage(img)
-        label1 = tk.Label(self, image=self.tkimage, bg="grey30")
-        label1.place(relx=0.01, rely=0.09)
+        #label1 = tk.Label(self, image=self.tkimage, bg="grey30")
+        #label1.place(relx=0.01, rely=0.08)
+
+        ####################weather
+        def format_response(weather_json):
+            try:
+                city = weather_json['name']
+                conditions = weather_json['weather'][0]['description']
+                temp = weather_json['main']['temp']
+                final_str = 'City: %s \nConditions: %s \nTemperature (°C): %s' % (city, conditions, temp)
+            except:
+                final_str = 'There was a problem retrieving that information'
+            # final_str = 'hello'
+            return final_str
+
+        def get_weather(city):
+            weather_key = '16344ab7408758e805713bfdc9c5bf8f'
+            url = 'https://api.openweathermap.org/data/2.5/weather'
+            params = {'APPID': '16344ab7408758e805713bfdc9c5bf8f', 'q': city, 'units': 'metric'}
+            response = requests.get(url, params=params)
+            print(response.json())
+            weather_json = response.json()
+            results['text'] = format_response(response.json())
+            icon_name = weather_json['weather'][0]['icon']
+            open_image(icon_name)
+
+        def open_image(icon):
+            size = int(lF_31.winfo_height() * 1.25)
+            #size = 1
+            print(size)
+            img = ImageTk.PhotoImage(Image.open('./img/' + icon + '.png').resize((size, size)))
+            weather_icon.delete("all")
+            weather_icon.create_image(0, 0, anchor='ne', image=img)
+            weather_icon.image = img
+
+
+        bg_color = 'white'
+        results = tk.Label(lF_31, anchor='nw', justify='left', bd=1)
+        results.config(font=20, bg='grey30')
+        results.place(relx=0.01, rely=0.02)
+
+        weather_icon = tk.Canvas(results, bg='grey5', bd=0, highlightthickness=0)
+        weather_icon.place(relx=.75, rely=0, relwidth=1, relheight=0.5)
+
+        get_weather('Krakow')
+        ##########
+
+
+        #TIME-----------
+
+        def times():
+            current_time = time.strftime("%H:%M:%S")
+            clock_label.config(text=current_time)
+            clock_label.after(200, times)
+
+
+        clock_label = tk.Label(lF_31, font=("times", 18, "bold"), bg="grey30")
+        clock_label.place(relx=0.8, rely=0.0)
+        times()
         #button = tk.Button(self, text="Go to the start page",command=lambda: controller.show_frame("StartPage"))
         #button.pack()
 
@@ -481,7 +583,7 @@ class PageTwo(tk.Frame):
             house_price = np.random.normal(2000000,25000,5000)
             plt.hist(house_price,50)
             plt.show()
-        my_button = tk.Button(Frame_2_3,text="GRAPH", command=graph, width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
+        my_button = tk.Button(Frame_2_5,text="GRAPH", command=graph, width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
         my_button.place(relx=0.5, rely=0, anchor='n')
         plt.style.use('fivethirtyeight')
 
@@ -517,8 +619,17 @@ class PageTwo(tk.Frame):
 
         fig = plt.figure()
 
-        my_button1 = tk.Button(Frame_2_3,text="GRAPH1", command=lambda: controller.show_frame("PageThree"), width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
+        my_button1 = tk.Button(Frame_2_6,text="GRAPH1", command=lambda: controller.show_frame("PageThree"), width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
         my_button1.place(relx=0.5, rely=0.5, anchor='center')
+
+        my_button2 = tk.Button(Frame_2_7, text="GRAPH2", command=lambda: WriteMemory(plc, 1, 6, S7WLBit, 1), width=20,
+                               height=2, borderwidth=3, fg="orange4", bg="gray10")
+        my_button2.place(relx=0.5, rely=0.5, anchor='center')
+
+        my_button3 = tk.Button(Frame_2_3, text="GRAPH2", command=lambda: WriteMemory(plc, 1, 6, S7WLBit, 0), width=20,
+                               height=2, borderwidth=3, fg="orange4", bg="gray10")
+        my_button3.place(relx=0.8, rely=0.5, anchor='center')
+
 
 class PageThree(tk.Frame):
 
@@ -552,6 +663,9 @@ class PageThree(tk.Frame):
         canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 if __name__ == "__main__":
+    plc = c.Client()
+    plc.connect('192.168.0.250', 0, 1)
     app = SampleApp()
     ani = animation.FuncAnimation(f, Graph, interval=1000)
+    print()
     app.mainloop()
