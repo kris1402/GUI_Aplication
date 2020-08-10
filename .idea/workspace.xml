@@ -121,18 +121,18 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Glowny.py</url>
-          <line>624</line>
+          <line>626</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Glowny.py</url>
-          <line>565</line>
-          <option name="timeStamp" value="3" />
+          <line>486</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Glowny.py</url>
-          <line>483</line>
-          <option name="timeStamp" value="4" />
+          <line>558</line>
+          <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
