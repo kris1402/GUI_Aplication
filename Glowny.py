@@ -509,15 +509,28 @@ class PageTwo(tk.Frame):
         b_43.place(x=176, y=0)
 
 
-
-
         #label = tk.Label(lF_31, text="Panel\n Operatorski", font=('Courier',22),bg="grey30",fg="black")
         #label.place(relx=0.5,rely=0.1, anchor="center")
-        img = Image.open('hmi.png')
-        print(img.size)
-        self.tkimage = ImageTk.PhotoImage(img)
-        label1 = tk.Label(self, image=self.tkimage, bg="grey30")
-        label1.place(relx=0.5, rely=0.1)
+
+        #labelka pod przycisk
+        Frame_3_1 = tk.LabelFrame(lF_31, bg="grey50")
+        Frame_3_1.place(relx=0, rely=0,relheight=0.19, relwidth=0.37)
+
+        Frame_3_2 = tk.LabelFrame(lF_31, bg="grey50")
+        Frame_3_2.place(relx=0.38, rely=0, relheight=0.19, relwidth=0.37)
+
+        Frame_3_3 = tk.LabelFrame(lF_31, bg="grey50")
+        Frame_3_3.place(relx=0.757, rely=0, relheight=0.19, relwidth=0.24)
+
+        size = int(Frame_3_2.winfo_height()*50)
+        print(Frame_3_2.winfo_height())
+        #img = ImageTk.PhotoImage(Image.open('HMI.png').resize((size, size)))
+        img = Image.open('HMI.png')
+        img = img.resize((size,size), Image.ANTIALIAS)
+        self.pic = ImageTk.PhotoImage(img)
+        #self.tkimage = ImageTk.PhotoImage(img)
+        label1 = tk.Label(Frame_3_2, image=self.pic, bg="grey50")
+        label1.place(relx=0.0, rely=0.1)
 
         ####################weather
         def format_response(weather_json):
@@ -545,24 +558,33 @@ class PageTwo(tk.Frame):
         def open_image(icon):
             size = int(lF_31.winfo_height())
             print(size)
-            img1 = ImageTk.PhotoImage(Image.open('./img/' + icon + '.png').resize((size, size)))
+            img1 = ImageTk.PhotoImage(Image.open('./img/' + icon + '.png').resize((50, 50)),Image.ANTIALIAS)
             weather_icon.delete("all")
             weather_icon.create_image(0, 0, anchor='ne', image=img1)
-            weather_icon.image = img1
+            #weather_icon.image = img1
+            ######
+            #panel = tk.Label(lF_31, image=weather_icon)
+            #panel.pack(side="bottom", fill="both", expand="yes")
+            ######
 
-
+        submit = tk.Button(Frame_3_2, text='Get', font=40, command=lambda: get_weather('Krakow'))
+        # submit.config(font=)
+        submit.place(relx=0.1, relheight=0.2, relwidth=0.3)
         bg_color = 'white'
-        results = tk.Label(lF_31, anchor='nw', justify='left', bd=1)
-        results.config(font=20, bg='grey30')
+        results = tk.Label(Frame_3_1, anchor='nw', justify='left', bd=1)
+        results.config(font=20, bg='grey50')
         results.place(relx=0.01, rely=0.02)
 
-        weather_icon = tk.Canvas(results, bg='white', bd=0, highlightthickness=0)
-        #weather_icon.place(relx=.5, rely=0, relwidth=1, relheight=0.5)
+        weather_icon = tk.Canvas(lF_31, bd=0, highlightthickness=0)
+        weather_icon.place(relx=.1, rely=0.2, relwidth=0.5, relheight=0.5)
+        #weather_icon = tk.Label(results, bg="grey50")
+        #label12.place(relx=0.0, rely=0.1)
 
-        get_weather('Krakow')
+        #get_weather('Krakow')
+
+
+
         ##########
-
-
         #TIME-----------
 
         def times():
@@ -571,8 +593,8 @@ class PageTwo(tk.Frame):
             clock_label.after(200, times)
 
 
-        clock_label = tk.Label(lF_31, font=("times", 18, "bold"), bg="grey30")
-        clock_label.place(relx=0.8, rely=0.0)
+        clock_label = tk.Label(Frame_3_3, font=("times", 18, "bold"), bg="grey50")
+        clock_label.place(relx=0.1, rely=0.0)
         times()
         #button = tk.Button(self, text="Go to the start page",command=lambda: controller.show_frame("StartPage"))
         #button.pack()
