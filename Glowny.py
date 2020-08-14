@@ -390,13 +390,13 @@ class PageOne(tk.Frame):
 
 
         ####BUTTONS
-        b_33 = tk.Button(lF_2, text='Prev ', command=lambda: controller.show_frame("StartPage"), fg="red4",
-                         bg="#708090", width="10", height="1", highlightthickness=2)
+        b_33 = tk.Button(lF_2, text='Prev ', command=lambda: controller.show_frame("StartPage"), fg="#DACBCB",
+                         bg="#564F4F", width="10", height="1", highlightthickness=2)
         b_33.place(x=10, y=0)
-        b_4 = tk.Button(lF_2, text='Menu ',command=lambda: controller.show_frame("StartPage"),fg="red4",bg="#708090",width="10", height="1",highlightthickness=2)
+        b_4 = tk.Button(lF_2, text='Menu ',command=lambda: controller.show_frame("StartPage"),fg="#DACBCB",bg="#564F4F",width="10", height="1",highlightthickness=2)
         b_4.place(x=93, y=0)
 
-        b = tk.Button(lF_2, text='Next', command=lambda: controller.show_frame("PageTwo"),fg="red4",bg="#708090",width="10",highlightthickness=2)
+        b = tk.Button(lF_2, text='Next', command=lambda: controller.show_frame("PageTwo"),fg="#DACBCB",bg="#564F4F",width="10",highlightthickness=2)
         b.place(x=176, y=0)
 
         button1 = tk.Button(lF_3, text="Go to Page One", command=lambda: controller.show_frame("PageOne"))
@@ -496,16 +496,16 @@ class PageTwo(tk.Frame):
         #lF_51 = tk.LabelFrame(lF_31, bg="gray94", fg="black")
         #lF_51.pack(fill="both", expand=True, pady=(0, 0), padx=(0, 0))  # , pady=(120, 40))
 
-        b_41 = tk.Button(lF_23, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="red4",
-                        bg="#708090", width="10", height="1", highlightthickness=2)
+        b_41 = tk.Button(lF_23, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="#DACBCB",
+                        bg="#564F4F", width="10", height="1", highlightthickness=2)
         b_41.place(x=93, y=0)
-        b_42 = tk.Button(lF_23, text='Prev ', command=lambda: controller.show_frame("PageOne"), fg="red4",
-                         bg="#708090", width="10", height="1", highlightthickness=2)
+        b_42 = tk.Button(lF_23, text='Prev ', command=lambda: controller.show_frame("PageOne"), fg="#DACBCB",
+                         bg="#564F4F", width="10", height="1", highlightthickness=2)
         b_42.place(x=10, y=0)
 
         #PAge Threee
         b_43 = tk.Button(lF_23, text="Next", command=lambda: controller.show_frame("PageThree"),
-                             fg="red4", bg="#708090", width="10", height="1", highlightthickness=2)
+                             fg="#DACBCB", bg="#564F4F", width="10", height="1", highlightthickness=2)
         b_43.place(x=176, y=0)
 
 
@@ -516,22 +516,41 @@ class PageTwo(tk.Frame):
         Frame_3_1 = tk.LabelFrame(lF_31, bg="grey50")
         Frame_3_1.place(relx=0, rely=0,relheight=0.19, relwidth=0.49)
 
-        Frame_3_2 = tk.LabelFrame(lF_31, bg="grey50")
-        Frame_3_2.place(relx=0.5, rely=0, relheight=0.19, relwidth=0.24)
+        Frame_3_2 = tk.LabelFrame(lF_31, bg="grey30")
+        Frame_3_2.place(relx=0.5, rely=0, relheight=0.19, relwidth=0.27)
 
         Frame_3_3 = tk.LabelFrame(lF_31, bg="grey50")
-        Frame_3_3.place(relx=0.75, rely=0, relheight=0.19, relwidth=0.24)
-
+        Frame_3_3.place(relx=0.78, rely=0, relheight=0.19, relwidth=0.21)
+#Przycisk configuration
         size = int(Frame_3_2.winfo_height()*50)
         print(Frame_3_2.winfo_height())
         #img = ImageTk.PhotoImage(Image.open('HMI.png').resize((size, size)))
         img = Image.open('HMI.png')
-        img = img.resize((size,size), Image.ANTIALIAS)
+        img = img.resize((30,28), Image.ANTIALIAS)
         self.pic = ImageTk.PhotoImage(img)
         #self.tkimage = ImageTk.PhotoImage(img)
         label1 = tk.Label(Frame_3_2, image=self.pic, bg="grey50")
-        label1.place(relx=0.0, rely=0.1)
-
+        btn = Button(Frame_3_2,text="Config",image=self.pic, compound="bottom",bg="grey50")
+        btn.place(relx=0.35, rely=0)
+#chart Button
+        img2 = Image.open('chart.png')
+        img2 = img2.resize((38, 28), Image.ANTIALIAS)
+        self.pic2 = ImageTk.PhotoImage(img2)
+        # self.tkimage = ImageTk.PhotoImage(img)
+        label1 = tk.Label(Frame_3_2, image=self.pic2, bg="grey50")
+        btn2 = Button(Frame_3_2, text="Chart", image=self.pic2, compound="bottom", bg="grey50")
+        btn2.place(relx=0, rely=0)
+#Button
+        img3 = Image.open('chart.png')
+        img3 = img3.resize((30, 28), Image.ANTIALIAS)
+        self.pic3 = ImageTk.PhotoImage(img3)
+        # self.tkimage = ImageTk.PhotoImage(img)
+        label1 = tk.Label(Frame_3_2, image=self.pic2, bg="grey50")
+        btn2 = Button(Frame_3_2, text="Chart", image=self.pic3, compound="bottom", bg="grey50")
+        btn2.place(relx=0.7, rely=0)
+# Label
+        label_1 = tk.Label(Frame_3_2, text='Settings',compound="bottom", bg="grey30")
+        label_1.place(relx=0.35, rely=0.73)
         ####################weather
         def format_response(weather_json):
             try:
@@ -588,14 +607,16 @@ class PageTwo(tk.Frame):
 
 
         clock_label = tk.Label(Frame_3_3, font=("times", 18, "bold"), bg="grey50")
-        clock_label.place(relx=0.1, rely=0.0)
+        clock_label.place(relx=0.05, rely=0.0)
         times()
-        #button = tk.Button(self, text="Go to the start page",command=lambda: controller.show_frame("StartPage"))
-        #button.pack()
-
-        #Frame_1_3 = tk.LabelFrame(lF_31, text="SQL Server", bg="gray30", fg="white", height=10)
-        #Frame_1_3.pack(fill="both", expand=True, pady=(97, 0), padx=(2, 2))
-
+        # przycisk calender
+        img3 = Image.open('date.png')
+        img3 = img3.resize((30, 30), Image.ANTIALIAS)
+        self.pic3 = ImageTk.PhotoImage(img3)
+        # self.tkimage = ImageTk.PhotoImage(img)
+        label1 = tk.Label(Frame_3_3, image=self.pic3,compound="bottom", bg="grey50")
+        #btn3 = Button(Frame_3_3, image=self.pic3, compound="bottom", bg="grey50")
+        label1.place(relx=0.4, rely=0.4)
 
         def graph():
             house_price = np.random.normal(2000000,25000,5000)
@@ -662,14 +683,14 @@ class PageThree(tk.Frame):
         lF_41.pack(fill="both", expand=True, pady=(30, 0))
 
         #Button
-        b_51 = tk.Button(lF_33, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="red4",
-                         bg="#708090", width="10", height="1", highlightthickness=2)
+        b_51 = tk.Button(lF_33, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="#DACBCB",
+                         bg="#564F4F", width="10", height="1", highlightthickness=2)
         b_51.place(x=93, y=0)
-        b_52 = tk.Button(lF_33, text='Prev ', command=lambda: controller.show_frame("PageTwo"), fg="red4",
-                         bg="#708090", width="10", height="1", highlightthickness=2)
+        b_52 = tk.Button(lF_33, text='Prev ', command=lambda: controller.show_frame("PageTwo"), fg="#DACBCB",
+                         bg="#564F4F", width="10", height="1", highlightthickness=2)
         b_52.place(x=10, y=0)
-        b_51 = tk.Button(lF_33, text='Next ', command=lambda: controller.show_frame("StartPage"), fg="red4",
-                         bg="#708090", width="10", height="1", highlightthickness=2)
+        b_51 = tk.Button(lF_33, text='Next ', command=lambda: controller.show_frame("StartPage"), fg="#DACBCB",
+                         bg="#564F4F", width="10", height="1", highlightthickness=2)
         b_51.place(x=176, y=0)
 
         canvas = FigureCanvasTkAgg(f, self)
