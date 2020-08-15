@@ -9,7 +9,7 @@ from PIL import ImageTk, Image
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import time
+#import time
 ############
 import requests
 from PIL import Image, ImageTk
@@ -390,14 +390,14 @@ class PageOne(tk.Frame):
 
 
         ####BUTTONS
-        b_33 = tk.Button(lF_2, text='Prev ', command=lambda: controller.show_frame("StartPage"), fg="#DACBCB",
-                         bg="#564F4F", width="10", height="1", highlightthickness=2)
-        b_33.place(x=10, y=0)
-        b_4 = tk.Button(lF_2, text='Menu ',command=lambda: controller.show_frame("StartPage"),fg="#DACBCB",bg="#564F4F",width="10", height="1",highlightthickness=2)
-        b_4.place(x=93, y=0)
+        b_33 = tk.Button(lF_2, text='Prev ', command=lambda: controller.show_frame("StartPage"), fg="black",
+                         bg="grey80", width="10", height="1", highlightthickness=2)
+        b_33.place(x=3, y=0)
+        b_4 = tk.Button(lF_2, text='Menu ',command=lambda: controller.show_frame("StartPage"),fg="black",bg="grey80",width="10", height="1",highlightthickness=2)
+        b_4.place(x=86, y=0)
 
-        b = tk.Button(lF_2, text='Next', command=lambda: controller.show_frame("PageTwo"),fg="#DACBCB",bg="#564F4F",width="10",highlightthickness=2)
-        b.place(x=176, y=0)
+        b = tk.Button(lF_2, text='Next', command=lambda: controller.show_frame("PageTwo"),fg="black",bg="grey80",width="10",highlightthickness=2)
+        b.place(x=169, y=0)
 
         button1 = tk.Button(lF_3, text="Go to Page One", command=lambda: controller.show_frame("PageOne"))
         button2 = tk.Button(lF_3, text="Go to Page Two", command=lambda: controller.show_frame("PageTwo"))
@@ -496,17 +496,17 @@ class PageTwo(tk.Frame):
         #lF_51 = tk.LabelFrame(lF_31, bg="gray94", fg="black")
         #lF_51.pack(fill="both", expand=True, pady=(0, 0), padx=(0, 0))  # , pady=(120, 40))
 
-        b_41 = tk.Button(lF_23, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="#DACBCB",
-                        bg="#564F4F", width="10", height="1", highlightthickness=2)
-        b_41.place(x=93, y=0)
-        b_42 = tk.Button(lF_23, text='Prev ', command=lambda: controller.show_frame("PageOne"), fg="#DACBCB",
-                         bg="#564F4F", width="10", height="1", highlightthickness=2)
-        b_42.place(x=10, y=0)
+        b_41 = tk.Button(lF_23, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="black",
+                        bg="grey80", width="10", height="1", highlightthickness=2)
+        b_41.place(x=86, y=0)
+        b_42 = tk.Button(lF_23, text='Prev ', command=lambda: controller.show_frame("PageOne"), fg="black",
+                         bg="grey80", width="10", height="1", highlightthickness=2)
+        b_42.place(x=3, y=0)
 
         #PAge Threee
         b_43 = tk.Button(lF_23, text="Next", command=lambda: controller.show_frame("PageThree"),
-                             fg="#DACBCB", bg="#564F4F", width="10", height="1", highlightthickness=2)
-        b_43.place(x=176, y=0)
+                             fg="black", bg="grey80", width="10", height="1", highlightthickness=2)
+        b_43.place(x=169, y=0)
 
 
         #label = tk.Label(lF_31, text="Panel\n Operatorski", font=('Courier',22),bg="grey30",fg="black")
@@ -540,18 +540,20 @@ class PageTwo(tk.Frame):
         label1 = tk.Label(Frame_3_2, image=self.pic2, bg="grey50")
         btn2 = Button(Frame_3_2, text="Chart", image=self.pic2, compound="bottom", bg="grey50")
         btn2.place(relx=0, rely=0)
-#Button
-        img3 = Image.open('chart.png')
-        img3 = img3.resize((30, 28), Image.ANTIALIAS)
-        self.pic3 = ImageTk.PhotoImage(img3)
+#chart mail
+        img4 = Image.open('mail.png')
+        img4 = img4.resize((32, 28), Image.ANTIALIAS)
+        self.pic4 = ImageTk.PhotoImage(img4)
         # self.tkimage = ImageTk.PhotoImage(img)
-        label1 = tk.Label(Frame_3_2, image=self.pic2, bg="grey50")
-        btn2 = Button(Frame_3_2, text="Chart", image=self.pic3, compound="bottom", bg="grey50")
-        btn2.place(relx=0.7, rely=0)
+        label1 = tk.Label(Frame_3_2, image=self.pic4, bg="grey50")
+        btn4 = Button(Frame_3_2, text="Mail", image=self.pic4, compound="bottom", bg="grey50")
+        btn4.place(relx=0.7, rely=0)
 # Label
-        label_1 = tk.Label(Frame_3_2, text='Settings',compound="bottom", bg="grey30")
-        label_1.place(relx=0.35, rely=0.73)
-        ####################weather
+        label_1 = tk.Label(Frame_3_2, text='More options',compound="bottom", bg="grey30")
+        label_1.place(relx=0.2, rely=0.73)
+
+        #----------------weather---------------
+#weather and labe;
         def format_response(weather_json):
             try:
                 city = weather_json['name']
@@ -579,52 +581,43 @@ class PageTwo(tk.Frame):
             print(size)
             img1 = ImageTk.PhotoImage(Image.open('./img/' + icon + '.png').resize((60, 60)),Image.ANTIALIAS)
             weather_icon.delete("all")
-            weather_icon.create_image(50, 5, anchor='ne', image=img1)
+            weather_icon.create_image(53, 5, anchor='ne', image=img1)
             weather_icon.image = img1
-
 
         bg_color = 'white'
         results = tk.Label(Frame_3_1, anchor='nw', justify='left', bd=1)
         results.config(font=20, bg='grey50')
-        results.place(relx=0.01, rely=0.02)
+        results.place(relx=0.005, rely=0.02)
+        weather_icon = tk.Canvas(Frame_3_1, bg='grey50', bd=0, highlightthickness=0)
+        weather_icon.place(relx=0.8, rely=0.1, relwidth=0.2, relheight=0.7)
 
-        weather_icon = tk.Canvas(Frame_3_1, bg='grey50',bd=0, highlightthickness=0)
-        weather_icon.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.7)
         #weather_icon = tk.Label(results, bg="grey50")
         #label12.place(relx=0.0, rely=0.1)
 
         get_weather('Krakow')
 
 
-
         ##########
         #TIME-----------
 
-        def times():
-            current_time = time.strftime("%H:%M:%S")
-            clock_label.config(text=current_time)
-            clock_label.after(200, times)
+        #                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             def times():
+            #current_time = time.strftime("%H:%M:%S")
+            #clock_label.config(text=current_time)
+            #clock_label.after(200, times)
 
 
-        clock_label = tk.Label(Frame_3_3, font=("times", 18, "bold"), bg="grey50")
-        clock_label.place(relx=0.05, rely=0.0)
-        times()
+        clock_label = tk.Label(Frame_3_3, font=("times", 12, "bold"),text='2:09 PM \n 15-Aug-20', bg="grey50")
+        clock_label.place(relx=0.05, rely=0.05)
+        #times()
         # przycisk calender
-        img3 = Image.open('date.png')
-        img3 = img3.resize((30, 30), Image.ANTIALIAS)
+        img3 = Image.open('date1.png')
+        img3 = img3.resize((20, 20), Image.ANTIALIAS)
         self.pic3 = ImageTk.PhotoImage(img3)
         # self.tkimage = ImageTk.PhotoImage(img)
         label1 = tk.Label(Frame_3_3, image=self.pic3,compound="bottom", bg="grey50")
         #btn3 = Button(Frame_3_3, image=self.pic3, compound="bottom", bg="grey50")
-        label1.place(relx=0.4, rely=0.4)
+        label1.place(relx=0.4, rely=0.6)
 
-        def graph():
-            house_price = np.random.normal(2000000,25000,5000)
-            plt.hist(house_price,50)
-            plt.show()
-        my_button = tk.Button(Frame_2_5,text="BAZOWANIE", command=graph, width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
-        my_button.place(relx=0.65, rely=0, anchor='n')
-        plt.style.use('fivethirtyeight')
 
         '''def graph():
             #plt.style.use('ggplot')
@@ -656,19 +649,65 @@ class PageTwo(tk.Frame):
             plt.xlabel('X label')
             plt.show()'''
 
-        fig = plt.figure()
 
-        my_button1 = tk.Button(Frame_2_6,text="ESTOP", command=lambda: controller.show_frame("PageThree"), width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
-        my_button1.place(relx=0.65, rely=0.5, anchor='center')
 
-        my_button2 = tk.Button(Frame_2_5, text="START", command=lambda: WriteMemory(plc, 1, 6, S7WLBit, 1), width=20,
+#______________________________________-------------------------
+
+
+        def open_image_on(icon):
+            img2 = ImageTk.PhotoImage(Image.open('./img1/' + icon + '.png').resize((40, 40)),Image.ANTIALIAS)
+            status1.delete("all")
+            status1.create_image(40, 0, anchor='ne', image=img2)
+            status1.image = img2
+
+        def open_image_off(icon):
+            img1 = ImageTk.PhotoImage(Image.open('./img1/' + icon + '.png').resize((40, 40)),Image.ANTIALIAS)
+            status2.delete("all")
+            status3.delete("all")
+            status4.delete("all")
+            status2.create_image(40, 0, anchor='ne', image=img1)
+            status3.create_image(40, 0, anchor='ne', image=img1)
+            status4.create_image(40, 0, anchor='ne', image=img1)
+            status2.image = img1
+            status3.image = img1
+            status4.image = img1
+
+
+        def onClick(arg):
+            if arg == 1:
+                open_image_on('off')
+                open_image_off('on')
+            if arg == 2:
+                open_image_on('on')
+                open_image_off('off')
+
+        status1 = tk.Canvas(Frame_2_5, bg='grey50', bd=0, highlightthickness=0)
+        status1.place(relx=0.35, rely=0, relwidth=0.12, relheight=1)
+        status2 = tk.Canvas(Frame_2_6, bg='grey50', bd=0, highlightthickness=0)
+        status2.place(relx=0.35, rely=0, relwidth=0.12, relheight=1)
+        status3 = tk.Canvas(Frame_2_5, bg='grey50', bd=0, highlightthickness=0)
+        status3.place(relx=0.83, rely=0, relwidth=0.12, relheight=1)
+        status4 = tk.Canvas(Frame_2_6, bg='grey50', bd=0, highlightthickness=0)
+        status4.place(relx=0.83, rely=0, relwidth=0.12, relheight=1)
+        open_image_on('off')
+        open_image_off('off')
+        # fig = plt.figure()
+        my_button2 = tk.Button(Frame_2_5, text="START", command=lambda: [WriteMemory(plc, 1, 6, S7WLBit, 1),onClick(2)], width=20,
                                height=2, borderwidth=3, fg="orange4", bg="gray10")
         my_button2.place(relx=0.17, rely=0, anchor='n')
-
-        my_button3 = tk.Button(Frame_2_6, text="STOP", command=lambda: WriteMemory(plc, 1, 6, S7WLBit, 0), width=20,
+        my_button3 = tk.Button(Frame_2_6, text="STOP", command=lambda: [WriteMemory(plc, 1, 6, S7WLBit, 0),onClick(1)], width=20,
                                height=2, borderwidth=3, fg="orange4", bg="gray10")
         my_button3.place(relx=0.17, rely=0, anchor='n')
-
+        my_button1 = tk.Button(Frame_2_6, text="ESTOP", command=lambda: [controller.show_frame("PageThree"),onClick(2)], width=20,
+                               height=2, borderwidth=3, fg="orange4", bg="gray10")
+        my_button1.place(relx=0.65, rely=0.5, anchor='center')
+        '''def graph():
+            house_price = np.random.normal(2000000,25000,5000)
+            plt.hist(house_price,50)
+            plt.show()'''
+        my_button = tk.Button(Frame_2_5,text="BAZOWANIE", command=lambda: onClick(2), width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
+        my_button.place(relx=0.65, rely=0, anchor='n')
+        plt.style.use('fivethirtyeight')
 
 class PageThree(tk.Frame):
 
@@ -683,15 +722,15 @@ class PageThree(tk.Frame):
         lF_41.pack(fill="both", expand=True, pady=(30, 0))
 
         #Button
-        b_51 = tk.Button(lF_33, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="#DACBCB",
-                         bg="#564F4F", width="10", height="1", highlightthickness=2)
-        b_51.place(x=93, y=0)
-        b_52 = tk.Button(lF_33, text='Prev ', command=lambda: controller.show_frame("PageTwo"), fg="#DACBCB",
-                         bg="#564F4F", width="10", height="1", highlightthickness=2)
-        b_52.place(x=10, y=0)
-        b_51 = tk.Button(lF_33, text='Next ', command=lambda: controller.show_frame("StartPage"), fg="#DACBCB",
-                         bg="#564F4F", width="10", height="1", highlightthickness=2)
-        b_51.place(x=176, y=0)
+        b_51 = tk.Button(lF_33, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="black",
+                         bg="grey80", width="10", height="1", highlightthickness=2)
+        b_51.place(x=86, y=0)
+        b_52 = tk.Button(lF_33, text='Prev ', command=lambda: controller.show_frame("PageTwo"), fg="black",
+                         bg="grey80", width="10", height="1", highlightthickness=2)
+        b_52.place(x=3, y=0)
+        b_51 = tk.Button(lF_33, text='Next ', command=lambda: controller.show_frame("StartPage"), fg="black",
+                         bg="grey80", width="10", height="1", highlightthickness=2)
+        b_51.place(x=169, y=0)
 
         canvas = FigureCanvasTkAgg(f, self)
         canvas.draw()
