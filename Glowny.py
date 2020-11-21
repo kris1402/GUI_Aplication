@@ -9,10 +9,103 @@ from PIL import ImageTk, Image
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+#import time
+############
+import requests
+from PIL import Image, ImageTk
+#############
 from matplotlib import style
-
+from tkinter import font
 #import Tkinter as tk     # python 2
 #import tkFont as tkfont  # python 2
+from datetime import datetime
+from matplotlib import style
+import matplotlib
+from matplotlib.figure import Figure
+matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+
+import snap7.client as c
+from snap7.util import *
+from snap7.snap7types import *
+
+#import queue
+from tkinter import scrolledtext
+#import threading
+import sys
+
+from tkinter import messagebox
+
+
+def ReadMemory(plc,byte,bit,datatype):
+    result = plc.read_area(areas['MK'],0,byte,datatype)
+    if datatype==S7WLBit:
+        return get_bool(result,0,bit)
+    elif datatype==S7WLByte or datatype==S7WLWord:
+        return get_int(result,0)
+    elif datatype==S7WLReal:
+        return get_real(result,0)
+    elif datatype==S7WLDWord:
+        return get_dword(result,0)
+    else:
+        return None
+
+def WriteMemory(plc,byte,bit,datatype,value):
+    result = plc.read_area(areas['MK'],0,byte,datatype)
+    if datatype==S7WLBit:
+        set_bool(result,0,bit,value)
+    elif datatype==S7WLByte or datatype==S7WLWord:
+        set_int(result,0,value)
+    elif datatype==S7WLReal:
+        set_real(result,0,value)
+    elif datatype==S7WLDWord:
+        set_dword(result,0,value)
+    plc.write_area(areas["MK"],0,byte,result)
+
+
+LARGE_FONT= ("Verdana", 10)
+style.use("dark_background")
+
+f = Figure(figsize = (2, 5), dpi = 75)
+ax1 = f.add_subplot(111)
+#ax2 = f1.add_subplot(212)
+def Graph(i):
+
+        """DinamiPlot"""
+        graph_data = open('Zeszyt1.csv','r').read()
+        lines = graph_data.split('\n')
+        #xs = []
+        ys = []
+        y1 = []
+        y2 = []
+        for line in lines:
+            if len(line) > 1:
+                #x, y = line.split(',')
+                y = line
+                #xs.append(float(x))
+                ys.append(float(y))
+                y1.append(46)
+                y2.append(51)
+        ax1.clear()
+        ax1.plot(ys,linewidth=3)
+        ax1.plot(y1,'lime', linestyle='dotted', linewidth=2)
+        ax1.plot(y2, 'lime', linestyle='dotted', linewidth=2)
+        ax1.set_ylabel('Wyniki Pomiarów')
+        ax1.set_xlabel('Unit[]')
+        ax1.set_title('Wykres pomiarów')
+        #ani = animation.FuncAnimation(fig, Graph, interval=1000)
+        #plt.show(ani)
+        """DinamiPlot"""
+class PrintLogger(): # create file like object
+    def __init__(self, textbox): # pass reference to text widget
+        self.textbox = textbox # keep ref
+
+    def write(self, text):
+        self.textbox.insert(tk.END, text) # write text to textbox
+            # could also scroll to end of textbox here to make sure always visible
+
+    def flush(self): # needed for file like object
+        pass
 
 class SampleApp(tk.Tk):
 
@@ -48,7 +141,7 @@ class SampleApp(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (StartPage, PageOne, PageTwo):
+        for F in (StartPage, PageOne, PageTwo, PageThree):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -97,14 +190,18 @@ class SampleApp(tk.Tk):
                                               #'Server=self.server;'
                                               'Database=Test;'
                                               'Trusted_Connection=yes;')"""
-            self.connnection = pyodbc.connect(driver=self.driver,
-                                              server=self.server,
-                                              database=self.db,
-                                              trusted_connection='yes')
-            self.cursor = self.connnection.cursor()
-            print(self.server)
-            print(self.db)
-            print("trusted_connection='yes'")
+            try:
+                self.connnection = pyodbc.connect(driver=self.driver,
+                                                server=self.server,
+                                                database=self.db,
+                                                trusted_connection='yes')
+                self.cursor = self.connnection.cursor()
+                print(self.server)
+                print(self.db)
+                print("trusted_connection='yes'")
+                messagebox.showinfo("Stan", "Poloczono")
+            except:
+                messagebox.showinfo("Stan", "Blad")
         else:
             self.connnection = pyodbc.connect(driver=self.driver,
                                               server=self.server,
@@ -148,11 +245,14 @@ class SampleApp(tk.Tk):
                         self.rc = self.conn.recv(1024).decode()
                         self.data = str(self.rc)
                         #self.data = (self.clientsocket.recv(1024).decode())
+                        self.data_1 = float(self.data)
+
                     except (Exception):#, e):
                         # we can wait on the line if desired
                         print ("socket error: ")#+repr(e))
                     if len(self.rc):
                         print("got data", self.rc)
+                        print("A float to: ", self.data_1 + 1.0) #Moja modyfikacja
                         #self.conn.send("got data.\n")
                         self.t.insert('end', str(self.rc))
                         connect_start=time()  # reset timeout time
@@ -194,9 +294,10 @@ class SampleApp(tk.Tk):
 
 
     def inserttotable(self):
-        self.cursor.execute('SELECT * FROM [Test].[dbo].[Dane_z_aplikacji]')
-        self.cursor.execute("INSERT INTO [Test].[dbo].[Dane_z_aplikacji] (Dane_z_portu) VALUES (?)", self.data)   #'SELECT * FROM db_name.Table')
+        self.cursor.execute('SELECT * FROM [Test_1].[dbo].[Dane_z_aplikacji]')
+        #self.cursor.execute("INSERT INTO [Test].[dbo].[Dane_z_aplikacji] (Dane_z_portu) VALUES (?)", self.data)   #'SELECT * FROM db_name.Table')
         #cursor.execute("insert into products(id, name) values ('pyodbc', 'awesome library')")
+        self.cursor.execute("INSERT INTO [Test_1].[dbo].[Dane_z_aplikacji] (ID_Referencji, ID_Stacji, Pomiar, DATA, Status) VALUES (?,?,?,?,?)",(2, 1, self.data_1, datetime.now(), 'OK'))
         self.cursor.commit()
         #'INSERT INTO [dbo].[Dane z aplikacji] VALUES (self.rc)'
 
@@ -259,14 +360,14 @@ class StartPage(tk.Frame):
 
         ##FRAME_2
 
-        Connect_b = tk.Button(Frame_2, text="Connect", command=lambda e_1=entry_1, e_2=entry_2, e_3=entry_3, e_4=entry_4, v = var: controller.connection_string(e_1, e_2, e_3, e_4, v),fg="red4",bg="dark slate gray",width="10", height="2",activebackground="red")
-        Connect_b.place(x=150,y=0)
+        Connect_b = tk.Button(Frame_2, text="Connect", command=lambda e_1=entry_1, e_2=entry_2, e_3=entry_3, e_4=entry_4, v = var: controller.connection_string(e_1, e_2, e_3, e_4, v),fg="#290000",bg="#A8A8A8",width="10", height="2",activebackground="red")
+        Connect_b.place(x=100,y=0)
 
-        to_p_1_b = tk.Button(Frame_2, text="Skip to page one", command=lambda: controller.show_frame("PageOne"),fg="red4",bg="dark slate gray",width="22", height="2")
-        to_p_1_b.place(x=330, y=0)
+        to_p_1_b = tk.Button(Frame_2, text="Skip to page one", command=lambda: controller.show_frame("PageOne"),fg="#290000",bg="#A8A8A8",width="22", height="2")
+        to_p_1_b.place(x=250, y=0)
 
-        Cancel_b = tk.Button(Frame_2, text="Cancel", command=lambda: controller.show_frame("PageOne"),fg="red4",bg="dark slate gray",width="10", height="2")
-        Cancel_b.place(x=240, y=0)
+        Cancel_b = tk.Button(Frame_2, text="Cancel", command=lambda: controller.show_frame("PageOne"),fg="#290000",bg="#A8A8A8",width="10", height="2")
+        Cancel_b.place(x=180, y=0)
 
 
 
@@ -278,7 +379,6 @@ class PageOne(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         #controller.geometry("510x400")
-
 
         ##POLOZENIE ELEMENTOW W APLIKACJI
 
@@ -311,11 +411,14 @@ class PageOne(tk.Frame):
 
 
         ####BUTTONS
-        b_4 = tk.Button(lF_2, text='Menu ',command=lambda: controller.show_frame("StartPage"),fg="red4",bg="dark slate gray",width="10", height="1",highlightthickness=2)
-        b_4.place(x=10, y=0)
+        b_33 = tk.Button(lF_2, text='Prev ', command=lambda: controller.show_frame("StartPage"), fg="black",
+                         bg="grey80", width="10", height="1", highlightthickness=2)
+        b_33.place(x=3, y=0)
+        b_4 = tk.Button(lF_2, text='Menu ',command=lambda: controller.show_frame("StartPage"),fg="black",bg="grey80",width="10", height="1",highlightthickness=2)
+        b_4.place(x=86, y=0)
 
-        b = tk.Button(lF_2, text='Next', command=lambda: controller.show_frame("PageTwo"),fg="red4",bg="dark slate gray",width="10",highlightthickness=2)
-        b.place(x=93, y=0)
+        b = tk.Button(lF_2, text='Next', command=lambda: controller.show_frame("PageTwo"),fg="black",bg="grey80",width="10",highlightthickness=2)
+        b.place(x=169, y=0)
 
         button1 = tk.Button(lF_3, text="Go to Page One", command=lambda: controller.show_frame("PageOne"))
         button2 = tk.Button(lF_3, text="Go to Page Two", command=lambda: controller.show_frame("PageTwo"))
@@ -332,10 +435,13 @@ class PageOne(tk.Frame):
 
 
         b3 = tk.Button(lF_4, text="Stop Listening", width=20,borderwidth=3,fg="orange4",bg="gray10", command=controller.stopc)
-        b3.place(x=3, y=80)
+        b3.place(x=3, y=60)
 
         b3 = tk.Button(lF_4, text="Insert Data to DB", width=20,borderwidth=3,fg="orange4",bg="gray10", command=controller.inserttotable)
-        b3.place(x=3, y=110)
+        b3.place(x=3, y=120)
+
+        b10 = tk.Button(lF_4, text="Download From DB", width=20,borderwidth=3,fg="orange4",bg="gray10", command=controller.stopc)
+        b10.place(x=3, y=155)
 
         ###TEKST
         controller.t = tk.Text(lF_3, height=9, width=40,bd=3,bg="gray50",fg="red")#, pady=5)
@@ -385,10 +491,22 @@ class PageTwo(tk.Frame):
 
         lF_31 = tk.LabelFrame(lF_23, bg="gray30", borderwidth=5, relief="raised")  # , height=100)
         lF_31.pack(fill="both", expand=True, pady=(30, 0))
+        #center gry
+        Frame_2_3 = tk.LabelFrame(lF_31, bg="grey60",text="Control")
+        Frame_2_3.pack(fill="both", expand=True, pady=(80, 0), padx=(2, 2))
+        #center row1
+        Frame_2_5 = tk.LabelFrame(Frame_2_3, bg="grey50")
+        Frame_2_5.pack(fill="both", expand=True, pady=2, padx=2)
+        Frame_2_6 = tk.LabelFrame(Frame_2_3, bg="grey50")
+        Frame_2_6.pack(fill="both", expand=True, pady=2, padx=2)
+        Frame_2_7 = tk.LabelFrame(Frame_2_3, bg="grey50")
+        Frame_2_7.pack(fill="both",expand=True, pady=2, padx=2)
 
-        Frame_2_3 = tk.LabelFrame(lF_31, bg="grey60",text="Option")
-        Frame_2_3.pack(fill="both", expand=True, pady=(90, 150), padx=(2, 2))
+        IF_32 = tk.LabelFrame(lF_31, bg="red",borderwidth=5, relief="raised")
+        IF_32.place(relx=5, rely=5)
 
+        Frame_2_4 = tk.LabelFrame(lF_31, bg="grey60", text="Logs")
+        Frame_2_4.pack(fill="both", pady=(10, 10), padx=(2, 2))
 
 
         # lF_6 = tk.LabelFrame(lF_3, text="Ramka obok", bg="green")
@@ -400,31 +518,130 @@ class PageTwo(tk.Frame):
         #lF_51 = tk.LabelFrame(lF_31, bg="gray94", fg="black")
         #lF_51.pack(fill="both", expand=True, pady=(0, 0), padx=(0, 0))  # , pady=(120, 40))
 
-        b_41 = tk.Button(lF_23, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="red4",
-                        bg="dark slate gray", width="10", height="1", highlightthickness=2)
-        b_41.place(x=93, y=0)
-        b_42 = tk.Button(lF_23, text='Prev ', command=lambda: controller.show_frame("PageOne"), fg="red4",
-                         bg="dark slate gray", width="10", height="1", highlightthickness=2)
-        b_42.place(x=10, y=0)
+        b_41 = tk.Button(lF_23, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="black",
+                        bg="grey80", width="10", height="1", highlightthickness=2)
+        b_41.place(x=86, y=0)
+        b_42 = tk.Button(lF_23, text='Prev ', command=lambda: controller.show_frame("PageOne"), fg="black",
+                         bg="grey80", width="10", height="1", highlightthickness=2)
+        b_42.place(x=3, y=0)
 
-        label = tk.Label(lF_31, text="Rysuj Grapf", font=controller.title_font,bg="grey30")
-        label.place(relx=0.5,rely=0.1, anchor="center")
-        #button = tk.Button(self, text="Go to the start page",command=lambda: controller.show_frame("StartPage"))
-        #button.pack()
-
-        #Frame_1_3 = tk.LabelFrame(lF_31, text="SQL Server", bg="gray30", fg="white", height=10)
-        #Frame_1_3.pack(fill="both", expand=True, pady=(97, 0), padx=(2, 2))
+        #PAge Threee
+        b_43 = tk.Button(lF_23, text="Next", command=lambda: controller.show_frame("PageThree"),
+                             fg="black", bg="grey80", width="10", height="1", highlightthickness=2)
+        b_43.place(x=169, y=0)
 
 
-        def graph():
-            house_price = np.random.normal(2000000,25000,5000)
-            plt.hist(house_price,50)
-            plt.show()
-        my_button = tk.Button(Frame_2_3,text="GRAPH", command=graph, width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
-        my_button.place(relx=0.5, rely=0, anchor='n')
-        plt.style.use('fivethirtyeight')
+        #label = tk.Label(lF_31, text="Panel\n Operatorski", font=('Courier',22),bg="grey30",fg="black")
+        #label.place(relx=0.5,rely=0.1, anchor="center")
 
-        def graph():
+        #labelka pod przycisk
+        Frame_3_1 = tk.LabelFrame(lF_31, bg="grey50")
+        Frame_3_1.place(relx=0, rely=0,relheight=0.19, relwidth=0.49)
+
+        Frame_3_2 = tk.LabelFrame(lF_31, bg="grey30")
+        Frame_3_2.place(relx=0.5, rely=0, relheight=0.19, relwidth=0.27)
+
+        Frame_3_3 = tk.LabelFrame(lF_31, bg="grey50")
+        Frame_3_3.place(relx=0.78, rely=0, relheight=0.19, relwidth=0.21)
+#Przycisk configuration
+        size = int(Frame_3_2.winfo_height()*50)
+        print(Frame_3_2.winfo_height())
+        #img = ImageTk.PhotoImage(Image.open('HMI.png').resize((size, size)))
+        img = Image.open('HMI.png')
+        img = img.resize((30,28), Image.ANTIALIAS)
+        self.pic = ImageTk.PhotoImage(img)
+        #self.tkimage = ImageTk.PhotoImage(img)
+        label1 = tk.Label(Frame_3_2, image=self.pic, bg="grey50")
+        btn = Button(Frame_3_2,text="Config",image=self.pic, compound="bottom",bg="grey50")
+        btn.place(relx=0.35, rely=0)
+#chart Button
+        img2 = Image.open('chart.png')
+        img2 = img2.resize((38, 28), Image.ANTIALIAS)
+        self.pic2 = ImageTk.PhotoImage(img2)
+        # self.tkimage = ImageTk.PhotoImage(img)
+        label1 = tk.Label(Frame_3_2, image=self.pic2, bg="grey50")
+        btn2 = Button(Frame_3_2, text="Chart", image=self.pic2, compound="bottom", bg="grey50")
+        btn2.place(relx=0, rely=0)
+#chart mail
+        img4 = Image.open('mail.png')
+        img4 = img4.resize((32, 28), Image.ANTIALIAS)
+        self.pic4 = ImageTk.PhotoImage(img4)
+        # self.tkimage = ImageTk.PhotoImage(img)
+        label1 = tk.Label(Frame_3_2, image=self.pic4, bg="grey50")
+        btn4 = Button(Frame_3_2, text="Mail", image=self.pic4, compound="bottom", bg="grey50")
+        btn4.place(relx=0.7, rely=0)
+# Label
+        label_1 = tk.Label(Frame_3_2, text='More options',compound="bottom", bg="grey30")
+        label_1.place(relx=0.2, rely=0.73)
+
+        #----------------weather---------------
+#weather and labe;
+        def format_response(weather_json):
+            try:
+                city = weather_json['name']
+                conditions = weather_json['weather'][0]['description']
+                temp = weather_json['main']['temp']
+                final_str = 'City: %s \nConditions: %s \nTemperature (°C): %s' % (city, conditions, temp)
+            except:
+                final_str = 'There was a problem retrieving that information'
+            # final_str = 'hello'
+            return final_str
+
+        def get_weather(city):
+            weather_key = '16344ab7408758e805713bfdc9c5bf8f'
+            url = 'https://api.openweathermap.org/data/2.5/weather'
+            params = {'APPID': '16344ab7408758e805713bfdc9c5bf8f', 'q': city, 'units': 'metric'}
+            response = requests.get(url, params=params)
+            print(response.json())
+            weather_json = response.json()
+            results['text'] = format_response(response.json())
+            icon_name = weather_json['weather'][0]['icon']
+            open_image(icon_name)
+
+        def open_image(icon):
+            size = int(lF_31.winfo_height())
+            print(size)
+            img1 = ImageTk.PhotoImage(Image.open('./img/' + icon + '.png').resize((60, 60)),Image.ANTIALIAS)
+            weather_icon.delete("all")
+            weather_icon.create_image(53, 5, anchor='ne', image=img1)
+            weather_icon.image = img1
+
+        bg_color = 'white'
+        results = tk.Label(Frame_3_1, anchor='nw', justify='left', bd=1)
+        results.config(font=20, bg='grey50')
+        results.place(relx=0.005, rely=0.02)
+        weather_icon = tk.Canvas(Frame_3_1, bg='grey50', bd=0, highlightthickness=0)
+        weather_icon.place(relx=0.8, rely=0.1, relwidth=0.2, relheight=0.7)
+
+        #weather_icon = tk.Label(results, bg="grey50")
+        #label12.place(relx=0.0, rely=0.1)
+
+        get_weather('Boston')
+
+
+        ##########
+        #TIME-----------
+
+        #                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             def times():
+            #current_time = time.strftime("%H:%M:%S")
+            #clock_label.config(text=current_time)
+            #clock_label.after(200, times)
+
+
+        clock_label = tk.Label(Frame_3_3, font=("times", 12, "bold"),text='2:09 PM \n 15-Aug-20', bg="grey50")
+        clock_label.place(relx=0.05, rely=0.05)
+        #times()
+        # przycisk calender
+        img3 = Image.open('date1.png')
+        img3 = img3.resize((20, 20), Image.ANTIALIAS)
+        self.pic3 = ImageTk.PhotoImage(img3)
+        # self.tkimage = ImageTk.PhotoImage(img)
+        label1 = tk.Label(Frame_3_3, image=self.pic3,compound="bottom", bg="grey50")
+        #btn3 = Button(Frame_3_3, image=self.pic3, compound="bottom", bg="grey50")
+        label1.place(relx=0.4, rely=0.6)
+
+
+        '''def graph():
             #plt.style.use('ggplot')
 
             """Cyberpunk GRAPH"""
@@ -452,34 +669,127 @@ class PageTwo(tk.Frame):
             plt.title('EpicGame')
             plt.ylabel('Y axis')
             plt.xlabel('X label')
-            plt.show()
-
-        fig = plt.figure()
-        ax1 = fig.add_subplot(1, 1, 1)
-        def Graph():
-
-            """DinamiPlot"""
-            graph_data = open('Zeszyt1.csv','r').read()
-            lines = graph_data.split('\n')
-            xs = []
-            ys = []
-            for line in lines:
-                if len(line) > 1:
-                    x, y = line.split(',')
-                    xs.append(x)
-                    ys.append(y)
-            ax1.clear()
-            ax1.plot(xs, ys)
-            self.ani = animation.FuncAnimation(fig, Graph, interval=1000)
-            plt.show()
-            """DinamiPlot"""
+            plt.show()'''
 
 
 
-        my_button1 = tk.Button(Frame_2_3,text="GRAPH1", command=Graph, width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
-        my_button1.place(relx=0.5, rely=0.5, anchor='center')
+#______________________________________-------------------------
 
+
+        def open_image_on(icon):
+            img2 = ImageTk.PhotoImage(Image.open('./img1/' + icon + '.png').resize((40, 40)),Image.ANTIALIAS)
+            status1.delete("all")
+            status1.create_image(40, 0, anchor='ne', image=img2)
+            status1.image = img2
+
+        def open_image_off(icon):
+            img1 = ImageTk.PhotoImage(Image.open('./img1/' + icon + '.png').resize((40, 40)),Image.ANTIALIAS)
+            status2.delete("all")
+            status3.delete("all")
+            status4.delete("all")
+            status2.create_image(40, 0, anchor='ne', image=img1)
+            status3.create_image(40, 0, anchor='ne', image=img1)
+            status4.create_image(40, 0, anchor='ne', image=img1)
+            status2.image = img1
+            status3.image = img1
+            status4.image = img1
+
+
+        def onClick(arg):
+            if arg == 1:
+                open_image_on('off')
+                open_image_off('on')
+            if arg == 2:
+                open_image_on('on')
+                open_image_off('off')
+
+        status1 = tk.Canvas(Frame_2_5, bg='grey50', bd=0, highlightthickness=0)
+        status1.place(relx=0.35, rely=0, relwidth=0.12, relheight=1)
+        status2 = tk.Canvas(Frame_2_6, bg='grey50', bd=0, highlightthickness=0)
+        status2.place(relx=0.35, rely=0, relwidth=0.12, relheight=1)
+        status3 = tk.Canvas(Frame_2_5, bg='grey50', bd=0, highlightthickness=0)
+        status3.place(relx=0.83, rely=0, relwidth=0.12, relheight=1)
+        status4 = tk.Canvas(Frame_2_6, bg='grey50', bd=0, highlightthickness=0)
+        status4.place(relx=0.83, rely=0, relwidth=0.12, relheight=1)
+        open_image_on('off')
+        open_image_off('off')
+        # fig = plt.figure()
+        my_button2 = tk.Button(Frame_2_5, text="START", command=lambda: [WriteMemory(plc, 1, 6, S7WLBit, 1),onClick(2)], width=20,
+                               height=2, borderwidth=3, fg="orange4", bg="gray10")
+        my_button2.place(relx=0.17, rely=0, anchor='n')
+        my_button3 = tk.Button(Frame_2_6, text="STOP", command=lambda: [WriteMemory(plc, 1, 6, S7WLBit, 0),onClick(1)], width=20,
+                               height=2, borderwidth=3, fg="orange4", bg="gray10")
+        my_button3.place(relx=0.17, rely=0, anchor='n')
+        my_button1 = tk.Button(Frame_2_6, text="ESTOP", command=lambda: [controller.show_frame("PageThree"),onClick(2)], width=20,
+                               height=2, borderwidth=3, fg="orange4", bg="gray10")
+        my_button1.place(relx=0.65, rely=0, anchor='n')
+        '''def graph():
+            house_price = np.random.normal(2000000,25000,5000)
+            plt.hist(house_price,50)
+            plt.show()'''
+        my_button = tk.Button(Frame_2_5,text="BAZOWANIE", command=lambda: onClick(2), width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
+        my_button.place(relx=0.65, rely=0, anchor='n')
+        plt.style.use('fivethirtyeight')
+
+        ck2 = Checkbutton(Frame_2_7, text='Wprowadź przedział wartości', anchor='center',command= lambda:entry_3,bg='grey50')
+        ck2.place(x=200, y=30)
+
+        ck3 = Entry(Frame_2_7,bd=5)
+        ck3.pack(side = LEFT)
+
+#--------------------------------------------------------
+
+# Create a ScrolledText wdiget
+        self.scrolled_text = scrolledtext.ScrolledText(Frame_2_4,wrap = tk.WORD, height=3,width=56)
+        self.scrolled_text.grid(row=0, column=0, padx = (10,10),sticky=(N, S, W, E))
+
+        def doSomething():
+            print('Waiting for Connection...\nconnected to port 2000')
+            print("done")
+        self.scrolled_text.after(1000, doSomething)
+
+        # create instance of file like object
+        pl = PrintLogger(self.scrolled_text)
+    # replace sys.stdout with our object
+        sys.stdout = pl
+        self.scrolled_text.after(1000, doSomething)
+
+
+class PageThree(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+
+        lF_33 = tk.LabelFrame(self, bg="gray94")
+        lF_33.pack(fill="both", expand=True, pady=(0, 0))
+
+        lF_41 = tk.LabelFrame(lF_33, bg="gray30", borderwidth=5, relief="raised")  # , height=100)
+        lF_41.pack(fill="both", expand=True, pady=(30, 0))
+
+        #Button
+        b_51 = tk.Button(lF_33, text='Menu ', command=lambda: controller.show_frame("StartPage"), fg="black",
+                         bg="grey80", width="10", height="1", highlightthickness=2)
+        b_51.place(x=86, y=0)
+        b_52 = tk.Button(lF_33, text='Prev ', command=lambda: controller.show_frame("PageTwo"), fg="black",
+                         bg="grey80", width="10", height="1", highlightthickness=2)
+        b_52.place(x=3, y=0)
+        b_51 = tk.Button(lF_33, text='Next ', command=lambda: controller.show_frame("StartPage"), fg="black",
+                         bg="grey80", width="10", height="1", highlightthickness=2)
+        b_51.place(x=169, y=0)
+
+        canvas = FigureCanvasTkAgg(f, self)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
+        toolbar = NavigationToolbar2Tk(canvas, self)
+        toolbar.update()
+        canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 if __name__ == "__main__":
+    plc = c.Client()
+    plc.connect('192.168.0.250', 0, 1)
     app = SampleApp()
+    ani = animation.FuncAnimation(f, Graph, interval=1000)
+    print()
     app.mainloop()
