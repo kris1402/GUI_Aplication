@@ -25,10 +25,17 @@ from matplotlib.figure import Figure
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
-
 import snap7.client as c
 from snap7.util import *
 from snap7.snap7types import *
+
+#import queue
+from tkinter import scrolledtext
+#import threading
+import sys
+
+from tkinter import messagebox
+
 
 def ReadMemory(plc,byte,bit,datatype):
     result = plc.read_area(areas['MK'],0,byte,datatype)
@@ -89,6 +96,16 @@ def Graph(i):
         #ani = animation.FuncAnimation(fig, Graph, interval=1000)
         #plt.show(ani)
         """DinamiPlot"""
+class PrintLogger(): # create file like object
+    def __init__(self, textbox): # pass reference to text widget
+        self.textbox = textbox # keep ref
+
+    def write(self, text):
+        self.textbox.insert(tk.END, text) # write text to textbox
+            # could also scroll to end of textbox here to make sure always visible
+
+    def flush(self): # needed for file like object
+        pass
 
 class SampleApp(tk.Tk):
 
@@ -173,14 +190,18 @@ class SampleApp(tk.Tk):
                                               #'Server=self.server;'
                                               'Database=Test;'
                                               'Trusted_Connection=yes;')"""
-            self.connnection = pyodbc.connect(driver=self.driver,
-                                              server=self.server,
-                                              database=self.db,
-                                              trusted_connection='yes')
-            self.cursor = self.connnection.cursor()
-            print(self.server)
-            print(self.db)
-            print("trusted_connection='yes'")
+            try:
+                self.connnection = pyodbc.connect(driver=self.driver,
+                                                server=self.server,
+                                                database=self.db,
+                                                trusted_connection='yes')
+                self.cursor = self.connnection.cursor()
+                print(self.server)
+                print(self.db)
+                print("trusted_connection='yes'")
+                messagebox.showinfo("Stan", "Poloczono")
+            except:
+                messagebox.showinfo("Stan", "Blad")
         else:
             self.connnection = pyodbc.connect(driver=self.driver,
                                               server=self.server,
@@ -479,13 +500,14 @@ class PageTwo(tk.Frame):
         Frame_2_6 = tk.LabelFrame(Frame_2_3, bg="grey50")
         Frame_2_6.pack(fill="both", expand=True, pady=2, padx=2)
         Frame_2_7 = tk.LabelFrame(Frame_2_3, bg="grey50")
-        Frame_2_7.pack(fill="both", expand=True, pady=2, padx=2)
+        Frame_2_7.pack(fill="both",expand=True, pady=2, padx=2)
 
         IF_32 = tk.LabelFrame(lF_31, bg="red",borderwidth=5, relief="raised")
         IF_32.place(relx=5, rely=5)
 
-        Frame_2_4 = tk.LabelFrame(lF_31, bg="grey60", text="Option")
-        Frame_2_4.pack(fill="both", expand=True, pady=(10, 10), padx=(2, 2))
+        Frame_2_4 = tk.LabelFrame(lF_31, bg="grey60", text="Logs")
+        Frame_2_4.pack(fill="both", pady=(10, 10), padx=(2, 2))
+
 
         # lF_6 = tk.LabelFrame(lF_3, text="Ramka obok", bg="green")
         # lF_6.pack(fill="both", expand=True, pady=(0, 0), padx=(0, 180))
@@ -594,7 +616,7 @@ class PageTwo(tk.Frame):
         #weather_icon = tk.Label(results, bg="grey50")
         #label12.place(relx=0.0, rely=0.1)
 
-        get_weather('Krakow')
+        get_weather('Boston')
 
 
         ##########
@@ -700,7 +722,7 @@ class PageTwo(tk.Frame):
         my_button3.place(relx=0.17, rely=0, anchor='n')
         my_button1 = tk.Button(Frame_2_6, text="ESTOP", command=lambda: [controller.show_frame("PageThree"),onClick(2)], width=20,
                                height=2, borderwidth=3, fg="orange4", bg="gray10")
-        my_button1.place(relx=0.65, rely=0.5, anchor='center')
+        my_button1.place(relx=0.65, rely=0, anchor='n')
         '''def graph():
             house_price = np.random.normal(2000000,25000,5000)
             plt.hist(house_price,50)
@@ -708,6 +730,30 @@ class PageTwo(tk.Frame):
         my_button = tk.Button(Frame_2_5,text="BAZOWANIE", command=lambda: onClick(2), width=20,height=2,borderwidth=3,fg="orange4",bg="gray10")
         my_button.place(relx=0.65, rely=0, anchor='n')
         plt.style.use('fivethirtyeight')
+
+        ck2 = Checkbutton(Frame_2_7, text='Wprowadź przedział wartości', anchor='center',command= lambda:entry_3,bg='grey50')
+        ck2.place(x=200, y=30)
+
+        ck3 = Entry(Frame_2_7,bd=5)
+        ck3.pack(side = LEFT)
+
+#--------------------------------------------------------
+
+# Create a ScrolledText wdiget
+        self.scrolled_text = scrolledtext.ScrolledText(Frame_2_4,wrap = tk.WORD, height=3,width=56)
+        self.scrolled_text.grid(row=0, column=0, padx = (10,10),sticky=(N, S, W, E))
+
+        def doSomething():
+            print('Waiting for Connection...\nconnected to port 2000')
+            print("done")
+        self.scrolled_text.after(1000, doSomething)
+
+        # create instance of file like object
+        pl = PrintLogger(self.scrolled_text)
+    # replace sys.stdout with our object
+        sys.stdout = pl
+        self.scrolled_text.after(1000, doSomething)
+
 
 class PageThree(tk.Frame):
 
