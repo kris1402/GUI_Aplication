@@ -324,7 +324,7 @@ class PageOne(tk.Frame):
 
         przycisk = tk.Button(lF_5, text="Send", width=20,fg="orange4",bg="gray10",highlightthickness=3,highlightcolor="red", command=controller.sendtoserv,
                       #highlightbackground="#37d3ff",
-                      borderwidth=3)
+                      borderwidth= 3)
         # self.przycisk.pack(side="bottom")
         przycisk.place(x=330,y=-3)
 
